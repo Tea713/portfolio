@@ -105,7 +105,6 @@ h6 {
 }
 
 :root {
-    scroll-snap-type: y mandatory;
     -ms-overflow-style: none;
     scrollbar-width: none;
     background-color: #000000;
@@ -117,7 +116,6 @@ h6 {
 
 section {
     height: 100vh;
-    scroll-snap-align: center;
     padding: 4rem 8rem;
 }
 
@@ -161,6 +159,14 @@ section {
     width: auto;
     background-color: black;
     border: 0px;
+    transition:
+        filter 0.3s ease-out,
+        transform 0.3s ease-out;
+}
+
+.link-btn:hover .logo {
+    filter: brightness(3);
+    transform: scale(1.1);
 }
 
 .page-icon {
@@ -176,10 +182,6 @@ h1 {
 }
 
 @media (max-width: 768px) {
-    :root {
-        scroll-snap-type: none;
-    }
-
     section {
         height: auto;
     }
