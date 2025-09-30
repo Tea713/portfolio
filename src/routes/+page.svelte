@@ -242,25 +242,12 @@
 			</div>
 		</div>
 		<div class="about">
+			<p>Hello there, I am a recent graduate from DePauw University, now located in NYC.</p>
 			<p>
-				Hello there, I am a recent graduate from DePauw University, now located in NYC (willing to
-				relocate!). Currently, I am not employed so I am open to most opportunities.
+				Currently, not employed so I am open to most tech-related opportunities, software
+				engineering/development would be nice.
 			</p>
-			<p>
-				I dabble in a bunch of things such as web development, game development, and machine
-				learning. I am currently working on my skills in web dev and recenly picked up Rust to
-				create tools and applications.
-			</p>
-			<p>
-				For now, my portfolio will likely be constantly updated as I am using this project (and the
-				next iteration of my portfolio) to learn web animation and also update any new projects this
-				summer.
-			</p>
-			<p>
-				This page is built with just vanilla html, css, and js. Since the portfolio's scope has
-				changed abit (I wanted to add a projects section with much more animations), I have decided
-				to create a new version with Svelte.
-			</p>
+			<p>I (try to) program. Working to get better. With hopefully cool things in the progress.</p>
 		</div>
 	</section>
 </div>
@@ -305,24 +292,13 @@
 				</div>
 			</div>
 			<div class="about">
+				<p>Hello there, I am a recent graduate from DePauw University, now located in NYC.</p>
 				<p>
-					Hello there, I am a recent graduate from DePauw University, now located in NYC (willing to
-					relocate!). Currently, I am not employed so I am open to most opportunities.
+					Currently, not employed so I am open to most tech-related opportunities, software
+					engineering/development would be nice.
 				</p>
 				<p>
-					I dabble in a bunch of things such as web development, game development, and machine
-					learning. I am currently working on my skills in web dev and recenly picked up Rust to
-					create tools and applications.
-				</p>
-				<p>
-					For now, my portfolio will likely be constantly updated as I am using this project (and
-					the next iteration of my portfolio) to learn web animation and also update any new
-					projects this summer.
-				</p>
-				<p>
-					This page is built with just vanilla html, css, and js. Since the portfolio's scope has
-					changed abit (I wanted to add a projects section with much more animations), I have
-					decided to create a new version with Svelte.
+					I (try to) program. Working to get better. With hopefully cool things in the progress.
 				</p>
 			</div>
 		</section>
