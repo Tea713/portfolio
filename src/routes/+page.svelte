@@ -25,7 +25,9 @@
 	};
 
 	let canvas: HTMLCanvasElement;
+	let transitionCanvas: HTMLCanvasElement;
 	let gradientReady = $state(false);
+	let transitionGradientReady = $state(false);
 	let shineOptions: ShineOptions = darkShine;
 
 	// Theme switching variables
@@ -34,8 +36,15 @@
 	let baseLayer: HTMLDivElement | undefined;
 	let transitionLayer: HTMLDivElement | undefined;
 
-	// Reactive variable derived from store
-	const isDark = $derived($theme === 'dark');
+	let visualTheme = $state($theme);
+	const isDark = $derived(isAnimating ? visualTheme === 'dark' : $theme === 'dark');
+
+	// Update visual theme when store changes (but not during animation)
+	$effect(() => {
+		if (!isAnimating) {
+			visualTheme = $theme;
+		}
+	});
 
 	// Update shine options when theme changes
 	$effect(() => {
@@ -44,7 +53,6 @@
 		}
 	});
 
-	// Theme toggle handler
 	function handleThemeToggle(event: ThemeToggleEvent): void {
 		if (isAnimating || !bubbleMask || !baseLayer || !transitionLayer) return;
 		isAnimating = true;
@@ -64,16 +72,18 @@
 			baseLayer.className = 'theme-layer light-layer active';
 		}
 
-		// Start the bubble expansion
 		bubbleMask.classList.add('expanding');
 
-		// After animation completes, swap the layers and update store
+		// After animation completes, update everything
 		setTimeout(() => {
+			theme.toggle();
+			visualTheme = $theme;
+
 			if (baseLayer) {
-				if (isDark) {
-					baseLayer.className = 'theme-layer light-layer active';
-				} else {
+				if ($theme === 'dark') {
 					baseLayer.className = 'theme-layer dark-layer active';
+				} else {
+					baseLayer.className = 'theme-layer light-layer active';
 				}
 			}
 
@@ -81,15 +91,13 @@
 				bubbleMask.classList.remove('expanding');
 			}
 
-			// Update the store (this will persist to localStorage)
-			theme.toggle();
-
 			isAnimating = false;
 		}, 1200);
 	}
 
 	onMount(() => {
 		let frame = 0;
+		let transitionFrame = 0;
 		let disposed = false;
 
 		// Use the theme store instead of media query
@@ -100,6 +108,12 @@
 
 		const context = canvas.getContext('2d');
 		if (!context) {
+			return;
+		}
+
+		// Setup transition canvas
+		const transitionContext = transitionCanvas.getContext('2d');
+		if (!transitionContext) {
 			return;
 		}
 
@@ -149,16 +163,32 @@
 				return;
 			}
 
+			// Setup both canvases
 			canvas.width = image.naturalWidth;
 			canvas.height = image.naturalHeight;
+			transitionCanvas.width = image.naturalWidth;
+			transitionCanvas.height = image.naturalHeight;
 
 			let buffer = context.createImageData(canvas.width, canvas.height);
+			let transitionBuffer = transitionContext.createImageData(
+				transitionCanvas.width,
+				transitionCanvas.height
+			);
 
 			const render = (t: number) => {
+				// Render main canvas
 				buffer = paint(context, t, image, buffer, shineOptions);
 				if (!gradientReady) {
 					gradientReady = true;
 				}
+
+				// Render transition canvas with opposite theme
+				const oppositeShine = isDark ? lightShine : darkShine;
+				transitionBuffer = paint(transitionContext, t, image, transitionBuffer, oppositeShine);
+				if (!transitionGradientReady) {
+					transitionGradientReady = true;
+				}
+
 				frame = requestAnimationFrame(render);
 			};
 
@@ -171,6 +201,9 @@
 			disposed = true;
 			if (frame) {
 				cancelAnimationFrame(frame);
+			}
+			if (transitionFrame) {
+				cancelAnimationFrame(transitionFrame);
 			}
 		};
 	});
@@ -251,10 +284,14 @@
 						src={coolChair}
 						alt=""
 						class="page-icon fallback"
-						class:faded-out={gradientReady}
+						class:faded-out={transitionGradientReady}
 						aria-hidden="true"
 					/>
-					<canvas class="page-icon gradient" class:visible={gradientReady}></canvas>
+					<canvas
+						bind:this={transitionCanvas}
+						class="page-icon gradient"
+						class:visible={transitionGradientReady}
+					></canvas>
 				</div>
 				<h1 class="name">Thanh Nguyen</h1>
 				<h3 class="job-title">Software Developer (Wannabe)</h3>
