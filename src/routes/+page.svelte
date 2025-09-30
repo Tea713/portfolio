@@ -27,7 +27,7 @@
 	let canvas: HTMLCanvasElement;
 	let gradientReady = $state(false);
 	let shineOptions: ShineOptions = darkShine;
-	
+
 	// Theme switching variables
 	let isAnimating = $state(false);
 	let bubbleMask: HTMLDivElement | undefined;
@@ -36,7 +36,7 @@
 
 	// Reactive variable derived from store
 	const isDark = $derived($theme === 'dark');
-	
+
 	// Update shine options when theme changes
 	$effect(() => {
 		if (typeof window !== 'undefined') {
@@ -45,11 +45,11 @@
 	});
 
 	// Theme toggle handler
-	function handleThemeToggle(event: CustomEvent<ThemeToggleEvent>): void {
+	function handleThemeToggle(event: ThemeToggleEvent): void {
 		if (isAnimating || !bubbleMask || !baseLayer || !transitionLayer) return;
 		isAnimating = true;
 
-		const { x, y } = event.detail;
+		const { x, y } = event;
 
 		// Set the origin point for the bubble
 		bubbleMask.style.setProperty('--x', `${x}px`);
@@ -80,10 +80,10 @@
 			if (bubbleMask) {
 				bubbleMask.classList.remove('expanding');
 			}
-			
+
 			// Update the store (this will persist to localStorage)
 			theme.toggle();
-			
+
 			isAnimating = false;
 		}, 1200);
 	}
@@ -194,7 +194,8 @@
 					class:faded-out={gradientReady}
 					aria-hidden="true"
 				/>
-				<canvas bind:this={canvas} class="page-icon gradient" class:visible={gradientReady}></canvas>
+				<canvas bind:this={canvas} class="page-icon gradient" class:visible={gradientReady}
+				></canvas>
 			</div>
 			<h1 class="name">Thanh Nguyen</h1>
 			<h3 class="job-title">Software Developer (Wannabe)</h3>
@@ -213,9 +214,9 @@
 				relocate!). Currently, I am not employed so I am open to most opportunities.
 			</p>
 			<p>
-				I dabble in a bunch of things such as web development, game development, and machine learning.
-				I am currently working on my skills in web dev and recenly picked up Rust to create tools and
-				applications.
+				I dabble in a bunch of things such as web development, game development, and machine
+				learning. I am currently working on my skills in web dev and recenly picked up Rust to
+				create tools and applications.
 			</p>
 			<p>
 				For now, my portfolio will likely be constantly updated as I am using this project (and the
@@ -224,8 +225,8 @@
 			</p>
 			<p>
 				This page is built with just vanilla html, css, and js. Since the portfolio's scope has
-				changed abit (I wanted to add a projects section with much more animations), I have decided to
-				create a new version with Svelte.
+				changed abit (I wanted to add a projects section with much more animations), I have decided
+				to create a new version with Svelte.
 			</p>
 		</div>
 	</section>
@@ -241,7 +242,11 @@
 	>
 		<section class="page-section hero">
 			<div class="title">
-				<div class="page-icon-wrapper" role="img" aria-label="Cool chair icon with animated gradient">
+				<div
+					class="page-icon-wrapper"
+					role="img"
+					aria-label="Cool chair icon with animated gradient"
+				>
 					<img
 						src={coolChair}
 						alt=""
@@ -268,26 +273,26 @@
 					relocate!). Currently, I am not employed so I am open to most opportunities.
 				</p>
 				<p>
-					I dabble in a bunch of things such as web development, game development, and machine learning.
-					I am currently working on my skills in web dev and recenly picked up Rust to create tools and
-					applications.
+					I dabble in a bunch of things such as web development, game development, and machine
+					learning. I am currently working on my skills in web dev and recenly picked up Rust to
+					create tools and applications.
 				</p>
 				<p>
-					For now, my portfolio will likely be constantly updated as I am using this project (and the
-					next iteration of my portfolio) to learn web animation and also update any new projects this
-					summer.
+					For now, my portfolio will likely be constantly updated as I am using this project (and
+					the next iteration of my portfolio) to learn web animation and also update any new
+					projects this summer.
 				</p>
 				<p>
 					This page is built with just vanilla html, css, and js. Since the portfolio's scope has
-					changed abit (I wanted to add a projects section with much more animations), I have decided to
-					create a new version with Svelte.
+					changed abit (I wanted to add a projects section with much more animations), I have
+					decided to create a new version with Svelte.
 				</p>
 			</div>
 		</section>
 	</div>
 </div>
 
-<ThemeSwitch on:toggle={handleThemeToggle} />
+<ThemeSwitch toggle={handleThemeToggle} />
 
 <style>
 	/* CSS reset by Josh W. Comeau */
@@ -453,8 +458,6 @@
 	:global(.bubble-mask.expanding) {
 		animation: bubbleExpand 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
-
-
 
 	section {
 		height: 100vh;

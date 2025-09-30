@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { theme } from '$lib/stores/theme';
 	import type { ThemeToggleEvent } from '$lib/types/theme';
 	import lightModeIcon from '$lib/assets/images/light_mode_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
 	import darkModeIcon from '$lib/assets/images/dark_mode_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
 
-	const dispatch = createEventDispatcher<{
-		toggle: ThemeToggleEvent;
-	}>();
+	interface Props {
+		toggle?: (event: ThemeToggleEvent) => void;
+	}
 
-	$: isDark = $theme === 'dark';
-	let inverting = false;
+	let { toggle }: Props = $props();
+
+	const isDark = $derived($theme === 'dark');
+	let inverting = $state(false);
 
 	function handleClick(event: MouseEvent): void {
 		inverting = true;
@@ -19,7 +20,7 @@
 		const x = rect.left + rect.width / 2;
 		const y = rect.top + rect.height / 2;
 
-		dispatch('toggle', { x, y });
+		toggle?.({ x, y });
 
 		setTimeout(() => {
 			inverting = false;
@@ -27,7 +28,7 @@
 	}
 </script>
 
-<button class="theme-switch" on:click={handleClick} aria-label="Toggle theme">
+<button class="theme-switch" onclick={handleClick} aria-label="Toggle theme">
 	{#if isDark}
 		<img class:active={inverting} id="light-mode-icon" src={lightModeIcon} alt="Light Mode" />
 	{:else}
