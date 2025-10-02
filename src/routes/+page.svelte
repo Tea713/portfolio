@@ -1,125 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import coolChair from '$lib/assets/images/cool-chair.png';
 	import gitHubLogo from '$lib/assets/images/github-mark-white-1x.png';
 	import linkedInLogo from '$lib/assets/images/InBug-White.png';
-	import { paint, type ShineOptions } from './shine';
-	import { theme } from '$lib/stores/theme';
-
-	const darkShine: ShineOptions = {
-		base: [255, 255, 255],
-		shine: [0, 0, 0],
-		cycleDuration: 8000,
-		flashWindow: 0.075,
-		softness: 0.15
-	};
-
-	const lightShine: ShineOptions = {
-		base: [0, 0, 0],
-		shine: [255, 255, 255],
-		cycleDuration: 8000,
-		flashWindow: 0.075,
-		softness: 0.15
-	};
-
-	let canvas: HTMLCanvasElement;
-	let gradientReady = $state(false);
-	let shineOptions: ShineOptions = $derived($theme === 'dark' ? darkShine : lightShine);
-
-	onMount(() => {
-		let frame = 0;
-		let disposed = false;
-
-		const context = canvas.getContext('2d');
-		if (!context) {
-			return;
-		}
-
-		const image = new Image();
-		image.src = coolChair;
-
-		// Guarantee the PNG is fully decoded using it as a mask.
-		const waitForImage = () =>
-			new Promise<void>((resolve, reject) => {
-				if (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0) {
-					resolve();
-					return;
-				}
-
-				image.onload = () => resolve();
-				image.onerror = () => reject(new Error('Failed to load gradient mask image.'));
-			});
-
-		const loadImage = async () => {
-			try {
-				await image.decode();
-			} catch (error) {
-				console.warn('Falling back to load event for gradient mask image.', error);
-				await waitForImage();
-				return;
-			}
-
-			if (!image.naturalWidth || !image.naturalHeight) {
-				await waitForImage();
-			}
-		};
-
-		const start = async () => {
-			try {
-				await loadImage();
-			} catch (error) {
-				console.error('Unable to load gradient mask image.', error);
-				return;
-			}
-
-			if (disposed) {
-				return;
-			}
-
-			if (!image.naturalWidth || !image.naturalHeight) {
-				console.error('Gradient mask image has invalid dimensions.');
-				return;
-			}
-
-			canvas.width = image.naturalWidth;
-			canvas.height = image.naturalHeight;
-
-			let buffer = context.createImageData(canvas.width, canvas.height);
-
-			const render = (t: number) => {
-				buffer = paint(context, t, image, buffer, shineOptions);
-				if (!gradientReady) {
-					gradientReady = true;
-				}
-				frame = requestAnimationFrame(render);
-			};
-
-			render(performance.now());
-		};
-
-		void start();
-
-		return () => {
-			disposed = true;
-			if (frame) {
-				cancelAnimationFrame(frame);
-			}
-		};
-	});
+	import CoolChair from '$lib/components/CoolChair.svelte';
 </script>
 
 <section class="page-section hero">
 	<div class="title">
-		<div class="page-icon-wrapper" role="img" aria-label="Cool chair icon">
-			<img
-				src={coolChair}
-				alt=""
-				class="page-icon fallback"
-				class:faded-out={gradientReady}
-				aria-hidden="true"
-			/>
-			<canvas bind:this={canvas} class="page-icon gradient" class:visible={gradientReady}></canvas>
-		</div>
+		<CoolChair />
 		<h1 class="name">Thanh Nguyen</h1>
 		<h3 class="job-title">Software Developer (Wannabe)</h3>
 		<div class="social-links">
@@ -327,42 +214,6 @@
 	.link-btn:hover .logo {
 		filter: brightness(3);
 		transform: scale(1.1);
-	}
-
-	.page-icon-wrapper {
-		position: relative;
-		display: inline-block;
-		width: min(100%, 28rem);
-		max-width: 100%;
-		overflow: hidden;
-	}
-
-	.page-icon {
-		display: block;
-		width: 100%;
-		height: auto;
-	}
-
-	.page-icon.gradient {
-		position: absolute;
-		inset: 0;
-		width: 100%;
-		height: 100%;
-		opacity: 0;
-		transition: opacity 0.4s ease;
-		pointer-events: none;
-	}
-
-	.page-icon.gradient.visible {
-		opacity: 1;
-	}
-
-	.page-icon.fallback {
-		transition: opacity 0.4s ease;
-	}
-
-	.page-icon.fallback.faded-out {
-		opacity: 0;
 	}
 
 	h1 {
