@@ -11,28 +11,22 @@
 	let { toggle }: Props = $props();
 
 	const isDark = $derived($theme === 'dark');
-	let inverting = $state(false);
 
 	function handleClick(event: MouseEvent): void {
-		inverting = true;
 		const target = event.currentTarget as HTMLButtonElement;
 		const rect = target.getBoundingClientRect();
 		const x = rect.left + rect.width / 2;
 		const y = rect.top + rect.height / 2;
 
 		toggle?.({ x, y });
-
-		setTimeout(() => {
-			inverting = false;
-		}, 1200);
 	}
 </script>
 
 <button class="theme-switch" onclick={handleClick} aria-label="Toggle theme">
 	{#if isDark}
-		<img class:active={inverting} id="light-mode-icon" src={lightModeIcon} alt="Light Mode" />
+		<img id="light-mode-icon" src={lightModeIcon} alt="Light Mode" />
 	{:else}
-		<img class:active={inverting} id="dark-mode-icon" src={darkModeIcon} alt="Dark Mode" />
+		<img id="dark-mode-icon" src={darkModeIcon} alt="Dark Mode" />
 	{/if}
 </button>
 
@@ -67,16 +61,8 @@
 		filter: invert(0);
 	}
 
-	#light-mode-icon.active {
-		filter: invert(1);
-	}
-
 	#dark-mode-icon {
 		filter: invert(1);
-	}
-
-	#dark-mode-icon.active {
-		filter: invert(0);
 	}
 
 	@media (max-width: 768px) {

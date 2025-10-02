@@ -4,9 +4,7 @@
 	import gitHubLogo from '$lib/assets/images/github-mark-white-1x.png';
 	import linkedInLogo from '$lib/assets/images/InBug-White.png';
 	import { paint, type ShineOptions } from './shine';
-	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
 	import { theme } from '$lib/stores/theme';
-	import type { ThemeToggleEvent } from '$lib/types/theme';
 
 	const darkShine: ShineOptions = {
 		base: [255, 255, 255],
@@ -25,95 +23,15 @@
 	};
 
 	let canvas: HTMLCanvasElement;
-	let transitionCanvas: HTMLCanvasElement;
 	let gradientReady = $state(false);
-	let transitionGradientReady = $state(false);
-	let shineOptions: ShineOptions = darkShine;
-
-	// Theme switching variables
-	let isAnimating = $state(false);
-	let bubbleMask: HTMLDivElement | undefined;
-	let baseLayer: HTMLDivElement | undefined;
-	let transitionLayer: HTMLDivElement | undefined;
-
-	let visualTheme = $state($theme);
-	const isDark = $derived(isAnimating ? visualTheme === 'dark' : $theme === 'dark');
-
-	// Update visual theme when store changes (but not during animation)
-	$effect(() => {
-		if (!isAnimating) {
-			visualTheme = $theme;
-		}
-	});
-
-	// Update shine options when theme changes
-	$effect(() => {
-		if (typeof window !== 'undefined') {
-			shineOptions = isDark ? darkShine : lightShine;
-		}
-	});
-
-	function handleThemeToggle(event: ThemeToggleEvent): void {
-		if (isAnimating || !bubbleMask || !baseLayer || !transitionLayer) return;
-		isAnimating = true;
-
-		const { x, y } = event;
-
-		// Set the origin point for the bubble
-		bubbleMask.style.setProperty('--x', `${x}px`);
-		bubbleMask.style.setProperty('--y', `${y}px`);
-
-		// Update the transition layer with the new theme
-		if (isDark) {
-			transitionLayer.className = 'theme-layer light-layer';
-			baseLayer.className = 'theme-layer dark-layer active';
-		} else {
-			transitionLayer.className = 'theme-layer dark-layer';
-			baseLayer.className = 'theme-layer light-layer active';
-		}
-
-		bubbleMask.classList.add('expanding');
-
-		// After animation completes, update everything
-		setTimeout(() => {
-			theme.toggle();
-			visualTheme = $theme;
-
-			if (baseLayer) {
-				if ($theme === 'dark') {
-					baseLayer.className = 'theme-layer dark-layer active';
-				} else {
-					baseLayer.className = 'theme-layer light-layer active';
-				}
-			}
-
-			if (bubbleMask) {
-				bubbleMask.classList.remove('expanding');
-			}
-
-			isAnimating = false;
-		}, 1200);
-	}
+	let shineOptions: ShineOptions = $derived($theme === 'dark' ? darkShine : lightShine);
 
 	onMount(() => {
 		let frame = 0;
-		let transitionFrame = 0;
 		let disposed = false;
-
-		// Use the theme store instead of media query
-		const applyTheme = (isDark: boolean) => {
-			shineOptions = isDark ? darkShine : lightShine;
-		};
-		applyTheme($theme === 'dark');
 
 		const context = canvas.getContext('2d');
 		if (!context) {
-			return;
-		}
-
-		// Setup transition canvas
-		const transitionContext = transitionCanvas.getContext('2d');
-		if (!transitionContext) {
 			return;
 		}
 
@@ -163,32 +81,16 @@
 				return;
 			}
 
-			// Setup both canvases
 			canvas.width = image.naturalWidth;
 			canvas.height = image.naturalHeight;
-			transitionCanvas.width = image.naturalWidth;
-			transitionCanvas.height = image.naturalHeight;
 
 			let buffer = context.createImageData(canvas.width, canvas.height);
-			let transitionBuffer = transitionContext.createImageData(
-				transitionCanvas.width,
-				transitionCanvas.height
-			);
 
 			const render = (t: number) => {
-				// Render main canvas
 				buffer = paint(context, t, image, buffer, shineOptions);
 				if (!gradientReady) {
 					gradientReady = true;
 				}
-
-				// Render transition canvas with opposite theme
-				const oppositeShine = isDark ? lightShine : darkShine;
-				transitionBuffer = paint(transitionContext, t, image, transitionBuffer, oppositeShine);
-				if (!transitionGradientReady) {
-					transitionGradientReady = true;
-				}
-
 				frame = requestAnimationFrame(render);
 			};
 
@@ -202,110 +104,42 @@
 			if (frame) {
 				cancelAnimationFrame(frame);
 			}
-			if (transitionFrame) {
-				cancelAnimationFrame(transitionFrame);
-			}
 		};
 	});
 </script>
 
-<!-- Base layer (current theme) -->
-<div
-	class="theme-layer"
-	class:dark-layer={isDark}
-	class:light-layer={!isDark}
-	class:active={true}
-	bind:this={baseLayer}
->
-	<section class="page-section hero">
-		<div class="title">
-			<div class="page-icon-wrapper" role="img" aria-label="Cool chair icon with animated gradient">
-				<img
-					src={coolChair}
-					alt=""
-					class="page-icon fallback"
-					class:faded-out={gradientReady}
-					aria-hidden="true"
-				/>
-				<canvas bind:this={canvas} class="page-icon gradient" class:visible={gradientReady}
-				></canvas>
-			</div>
-			<h1 class="name">Thanh Nguyen</h1>
-			<h3 class="job-title">Software Developer (Wannabe)</h3>
-			<div class="social-links">
-				<a href="https://github.com/Tea713" class="link-btn">
-					<img src={gitHubLogo} class="logo" alt="GitHub Logo" />
-				</a>
-				<a href="https://www.linkedin.com/in/thanh-nguyen-85b619223" class="link-btn">
-					<img src={linkedInLogo} class="logo" alt="LinkedIn Logo" />
-				</a>
-			</div>
+<section class="page-section hero">
+	<div class="title">
+		<div class="page-icon-wrapper" role="img" aria-label="Cool chair icon">
+			<img
+				src={coolChair}
+				alt=""
+				class="page-icon fallback"
+				class:faded-out={gradientReady}
+				aria-hidden="true"
+			/>
+			<canvas bind:this={canvas} class="page-icon gradient" class:visible={gradientReady}></canvas>
 		</div>
-		<div class="about">
-			<p>Hello there, I am a recent graduate from DePauw University, now located in NYC.</p>
-			<p>
-				Currently, not employed so I am open to most tech-related opportunities, software
-				engineering/development would be nice.
-			</p>
-			<p>I (try to) program. Working to get better. With hopefully cool things in the progress.</p>
+		<h1 class="name">Thanh Nguyen</h1>
+		<h3 class="job-title">Software Developer (Wannabe)</h3>
+		<div class="social-links">
+			<a href="https://github.com/Tea713" class="link-btn">
+				<img src={gitHubLogo} class="logo" alt="GitHub Logo" />
+			</a>
+			<a href="https://www.linkedin.com/in/thanh-nguyen-85b619223" class="link-btn">
+				<img src={linkedInLogo} class="logo" alt="LinkedIn Logo" />
+			</a>
 		</div>
-	</section>
-</div>
-
-<!-- Transition layer (new theme) -->
-<div class="bubble-mask" bind:this={bubbleMask}>
-	<div
-		class="theme-layer"
-		class:light-layer={isDark}
-		class:dark-layer={!isDark}
-		bind:this={transitionLayer}
-	>
-		<section class="page-section hero">
-			<div class="title">
-				<div
-					class="page-icon-wrapper"
-					role="img"
-					aria-label="Cool chair icon with animated gradient"
-				>
-					<img
-						src={coolChair}
-						alt=""
-						class="page-icon fallback"
-						class:faded-out={transitionGradientReady}
-						aria-hidden="true"
-					/>
-					<canvas
-						bind:this={transitionCanvas}
-						class="page-icon gradient"
-						class:visible={transitionGradientReady}
-					></canvas>
-				</div>
-				<h1 class="name">Thanh Nguyen</h1>
-				<h3 class="job-title">Software Developer (Wannabe)</h3>
-				<div class="social-links">
-					<a href="https://github.com/Tea713" class="link-btn">
-						<img src={gitHubLogo} class="logo" alt="GitHub Logo" />
-					</a>
-					<a href="https://www.linkedin.com/in/thanh-nguyen-85b619223" class="link-btn">
-						<img src={linkedInLogo} class="logo" alt="LinkedIn Logo" />
-					</a>
-				</div>
-			</div>
-			<div class="about">
-				<p>Hello there, I am a recent graduate from DePauw University, now located in NYC.</p>
-				<p>
-					Currently, not employed so I am open to most tech-related opportunities, software
-					engineering/development would be nice.
-				</p>
-				<p>
-					I (try to) program. Working to get better. With hopefully cool things in the progress.
-				</p>
-			</div>
-		</section>
 	</div>
-</div>
-
-<ThemeSwitch toggle={handleThemeToggle} />
+	<div class="about">
+		<p>Hello there, I am a recent graduate from DePauw University, now located in NYC.</p>
+		<p>
+			Currently, not employed so I am open to most tech-related opportunities, software
+			engineering/development would be nice.
+		</p>
+		<p>I (try to) program. Working to get better. With hopefully cooler things in the progress.</p>
+	</div>
+</section>
 
 <style>
 	/* CSS reset by Josh W. Comeau */
@@ -416,60 +250,28 @@
 		display: none;
 	}
 
+	.logo {
+		background: none;
+	}
+
 	/* Dark mode styles */
-	:global(.dark-layer) {
+	:global(.dark *) {
 		background: #000000;
 		color: #ffffff;
 	}
 
 	/* Light mode styles */
-	:global(.light-layer) {
+	:global(.light *) {
 		background: #ffffff;
 		color: #000000;
 	}
 
-	:global(.light-layer .link-btn) {
-		background-color: #ffffff;
-	}
-
-	:global(.light-layer .logo) {
-		background-color: #ffffff;
+	:global(.light .logo) {
 		filter: invert(1);
 	}
 
-	:global(.light-layer .link-btn:hover .logo) {
+	:global(.light .link-btn:hover .logo) {
 		filter: invert(1) brightness(0.7);
-	}
-
-	/* Layer system */
-	:global(.theme-layer) {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100vh;
-		pointer-events: none;
-		z-index: 1;
-	}
-
-	:global(.theme-layer.active) {
-		pointer-events: auto;
-	}
-
-	/* Bubble mask */
-	:global(.bubble-mask) {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100vh;
-		pointer-events: none;
-		z-index: 10;
-		clip-path: circle(0px at var(--x, 50%) var(--y, 50%));
-	}
-
-	:global(.bubble-mask.expanding) {
-		animation: bubbleExpand 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 	}
 
 	section {
@@ -511,13 +313,11 @@
 
 	.link-btn {
 		border: none;
-		background-color: inherit;
 	}
 
 	.logo {
 		height: 30px;
 		width: auto;
-		background-color: inherit;
 		border: 0px;
 		transition:
 			filter 0.3s ease-out,
