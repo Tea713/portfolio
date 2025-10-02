@@ -16,17 +16,27 @@
 
 		const { x, y } = event;
 
-		// TODO: Make the animation smoother. Idk why it is not as smooth previously.
 		document.documentElement.animate(
 			[
-				{ clipPath: `circle(0px at ${x}px ${y}px)`, offset: 0 },
-				{ clipPath: `circle(40vmax at ${x}px ${y}px)`, offset: 0.2 },
-				{ clipPath: `circle(30vmax at ${x}px ${y}px)`, offset: 0.6 },
+				{
+					clipPath: `circle(0px at ${x}px ${y}px)`,
+					offset: 0,
+					easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+				},
+				{
+					clipPath: `circle(300px at ${x}px ${y}px)`,
+					offset: 0.4,
+					easing: 'cubic-bezier(0, 0, 1, 1)'
+				},
+				{
+					clipPath: `circle(280px at ${x}px ${y}px)`,
+					offset: 0.45,
+					easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+				},
 				{ clipPath: `circle(200vmax at ${x}px ${y}px)`, offset: 1 }
 			],
 			{
 				duration: 1200,
-				easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
 				pseudoElement: '::view-transition-new(root)'
 			}
 		);
