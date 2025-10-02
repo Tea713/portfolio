@@ -24,12 +24,12 @@
 					easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
 				},
 				{
-					clipPath: `circle(300px at ${x}px ${y}px)`,
+					clipPath: `circle(35vmax at ${x}px ${y}px)`,
 					offset: 0.4,
 					easing: 'cubic-bezier(0, 0, 1, 1)'
 				},
 				{
-					clipPath: `circle(280px at ${x}px ${y}px)`,
+					clipPath: `circle(30vmax at ${x}px ${y}px)`,
 					offset: 0.45,
 					easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
 				},
