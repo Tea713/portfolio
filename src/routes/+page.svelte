@@ -2,6 +2,10 @@
 	import gitHubLogo from '$lib/assets/images/github-mark-white-1x.png';
 	import linkedInLogo from '$lib/assets/images/InBug-White.png';
 	import CoolChair from '$lib/components/CoolChair.svelte';
+	import { currentSection } from '$lib/stores/section';
+	import SectionMenu from '$lib/components/Menu.svelte';
+	import About from '$lib/components/About.svelte';
+	import Projects from '$lib/components/Projects.svelte';
 </script>
 
 <section class="page-section hero">
@@ -18,13 +22,13 @@
 			</a>
 		</div>
 	</div>
-	<div class="about">
-		<p>Hello there, I am a recent graduate from DePauw University, now located in NYC.</p>
-		<p>
-			Currently, not employed so I am open to most tech-related opportunities, software
-			engineering/development would be nice.
-		</p>
-		<p>I (try to) program. Working to get better, with hopefully cooler things in the process.</p>
+	<SectionMenu onNavigate={() => {}} />
+	<div class="content-area">
+		{#if $currentSection === 'about'}
+			<About />
+		{:else if $currentSection === 'projects'}
+			<Projects />
+		{/if}
 	</div>
 </section>
 
@@ -176,14 +180,14 @@
 		grid-template-areas: 'me about';
 	}
 
-	.about,
+	.content-area,
 	.title {
 		padding: 8px 16px;
 		display: flex;
 		flex-direction: column;
 	}
 
-	.about {
+	.content-area {
 		gap: 1.5rem;
 		grid-area: 'about';
 	}
